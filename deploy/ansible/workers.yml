@@ -1,0 +1,7 @@
+---
+
+- hosts: workers
+  become: yes
+  roles:
+    - kubernetes/kubelet
+    - kubernetes/proxy

@@ -1,0 +1,6 @@
+---
+
+- name: reconfig unbound
+  systemd:
+    name: unbound
+    state: restarted

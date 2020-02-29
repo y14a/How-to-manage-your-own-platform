@@ -1,0 +1,4 @@
+---
+
+- import_playbook: masters.yml
+- import_playbook: infra.yml

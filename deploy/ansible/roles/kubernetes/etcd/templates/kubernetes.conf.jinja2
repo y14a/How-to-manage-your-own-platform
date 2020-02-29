@@ -1,0 +1,13 @@
+[Unit]
+Description=kubernetes
+Documentation=https://github.com/coreos
+
+[Service]
+Type=notify
+Restart=on-failure
+RestartSec=5
+ExecStart=/usr/local/bin/docker-compose \
+    -f /var/lib/kubernetes/docker-compose.yml
+
+[Install]
+WantedBy=multi-user.target

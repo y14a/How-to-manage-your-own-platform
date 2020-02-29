@@ -1,0 +1,7 @@
+---
+
+- hosts: dns
+  become: yes
+  roles:
+    - common
+    - resolver

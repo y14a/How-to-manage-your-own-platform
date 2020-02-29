@@ -1,0 +1,15 @@
+---
+
+- name: setup hostname
+  hostname: 
+    name: "{{ inventory_hostname }}"
+
+- name: set hostname to hosts file
+  lineinfile:
+    path: /etc/hosts
+    regexp: '{{ item }}'
+    line: '\1 {{ inventory_hostname }} \2'
+    backrefs: yes
+  with_items:
+    - '(^127.0.0.1) (?!{{ inventory_hostname }}) (.*)'
+    - '(^::1) (?!{{ inventory_hostname }}) (.*)'

@@ -1,0 +1,23 @@
+server:
+  interface: 0.0.0.0
+  access-control: 0.0.0.0/0 allow
+  do-ip4: yes
+  do-ip6: no
+
+  # Cluster nodes record
+{% for host in hostvars %}
+  local-data: "{{ host }}. IN A {{ hostvars[host].ansible_host }}"
+{% endfor %}
+
+  # Etcd bootstrap TXT record
+{% for host in groups['master'] %}
+  local-data: "_etcd-server-ssl._tcp.{{ domain.name }}. 300 IN SRV 0 0 2379 {{ host }}"
+  local-data: "_etcd-server._tcp.{{ domain.name }}. 300 IN SRV 0 0 2379 {{ host }}"
+  local-data: "_etcd-client-ssl._tcp.{{ domain.name }}. 300 IN SRV 0 0 2379 {{ host }}"
+  local-data: "_etcd-client._tcp.{{ domain.name }}. 300 IN SRV 0 0 2379 {{ host }}"
+{% endfor %}
+
+
+forward-zone:
+  name: "."
+  forward-addr: 8.8.8.8

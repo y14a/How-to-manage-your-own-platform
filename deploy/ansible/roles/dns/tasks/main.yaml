@@ -1,0 +1,34 @@
+---
+
+- name: install DNS server package
+  yum:
+    name: nsd
+    state: installed
+
+- name: open DNS port
+  firewalld:
+    port: 52/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: copy NSD config
+  template:
+    src: nsd.conf.jinja2
+    dest: /etc/nsd/nsd.conf
+
+- name: create zone directory
+  file:
+    path: /etc/nsd/zones
+    state: directory
+
+- name: copy zone files
+  template:
+    src: zone.jinja2
+    dest: /etc/nsd/zones/{{ domain.name }}.zone
+
+- name: start NSD
+  systemd:
+    name: nsd
+    enabled: yes
+    state: started

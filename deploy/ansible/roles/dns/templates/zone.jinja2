@@ -1,0 +1,15 @@
+$TTL 3600
+$ORIGIN {{ domain.name }}.
+
+{{ domain.name }}	IN SOA ns.{{ domain.name }}. (
+				20200220;
+				3600;
+				900;
+				360000;
+				3600;
+			)
+{{ domain.name }}	IN NS	{{ inventory_hostname }}
+
+{% for host in hostvars %}
+{{ host }}		IN A {{ hostvars[host].ansible_host }}
+{% endfor %}

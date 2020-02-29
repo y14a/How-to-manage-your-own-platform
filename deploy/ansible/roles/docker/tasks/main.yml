@@ -1,0 +1,44 @@
+---
+
+- name: install packages for installing docker official package
+  yum:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: installed
+  
+- name: check has docker official repository been setup
+  stat:
+    path: /etc/yum.repos.d/docker-ce.repo
+  register: repo
+
+- name: setup docker official repository
+  command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  when: not repo.stat.exists
+
+- name: install docker from official repository
+  yum:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: installed
+
+- name: start dockerd
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: check docker-compose is installed
+  stat:
+    path: /usr/local/bin/docker-compose
+  register: dockercompose
+
+- name: get docker-compsoe command
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-{{ ansible_architecture }}-{{ ansible_os_family }}"
+    dest: /usr/local/bin/docker-compose
+    mode: u+rwx
+  when: dockercompose.stat.exists

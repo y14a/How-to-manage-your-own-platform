@@ -1,0 +1,49 @@
+---
+
+- name: check hyperkube image has been downloaded
+  command: docker image ls -q {{ kubernetes.hyperkube.image }}:{{ kubernetes.hyperkube.version }}
+  register: hyperkube
+  changed_when: False
+
+- name: download hyperkube image
+  command: docker image pull {{ kubernetes.hyperkube.image }}:{{ kubernetes.hyperkube.version }}
+  when: hyperkube.stdout == ""
+
+- name: create kubernetes master directories
+  stat:
+    path: "{{ items }}"
+    state: directory
+  loop:
+    - /etc/kubernetes
+    - /etc/kubernetes/ca
+    - /etc/systemd/system/kubernetes.service.d
+
+- name: copy TLS CA certificate
+  copy:
+    src: ca.pem
+    dest: /etc/ssl/certs/ca.pem
+
+- name: copy TLS host keys
+  copy:
+    src: "{{ item }}-key.pem"
+    dest: "/var/lib/kubernetes/{{ item }}/{{ item }}-key.pem"
+  loop:
+    - etcd
+    - kube-apiserver
+    - kube-scheduler
+    - kube-controller-manager
+
+- name: copy TLS certificates
+  copy:
+    src: "{{ item }}.pem"
+    dest: "/var/lib/kubernetes/{{ item }}/{{ item }}.pem"
+  loop:
+    - etcd
+    - kube-apiserver
+    - kube-scheduler
+    - kube-controller-manager
+
+- name: copy systemd file
+  template:
+    src: kubernetes.conf.jinja2
+    dest: /etc/systemd/system/kubernetes.service.d/kubernetes.conf

@@ -1,0 +1,23 @@
+---
+
+- name: check etcd image has downloaded
+  command: docker image ls -q {{ kubernetes.etcd.image }}:{{ kubernetes.etcd.version }}
+  register: result
+  changed_when: False
+
+- name: download etcd image
+  command: docker image pull {{ kubernetes.etcd.image }}:{{ kubernetes.etcd.version }}
+  when: result.stdout == ""
+
+- name: create etcd directory
+  stat:
+    path: "{{ items }}"
+    state: directory
+  loop:
+    - /etc/etcd
+    - /var/lib/etcd
+
+- name: copy TLS certificate 
+  copy:
+    src: {{ item }}
+    dest: /etc/etcd/certs

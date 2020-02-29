@@ -1,0 +1,17 @@
+server:
+  ip-address: {{ ansible_host }}
+  port: 53
+  do-ip4: yes
+  do-ip6: no
+  zonesdir: /etc/nsd/zones
+
+remote-control:
+  control-enable: no
+
+zone:
+  name: {{ domain.name }}
+  zonefile: {{ domain.name }}.zone
+
+zone:
+  name: {{ ansible_host }}.in-addr.arpa
+  zonefile: {{ domain.name }}.rev

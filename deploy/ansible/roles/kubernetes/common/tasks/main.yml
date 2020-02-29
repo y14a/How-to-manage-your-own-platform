@@ -1,0 +1,33 @@
+---
+
+- name: check kubernetes directory is exists
+  stat:
+    path: /var/lib/kubernetes
+  register: kubedir
+
+- name: create kubernetes file directory
+  file:
+    path: /var/lib/kubernetes
+    state: directory
+  when: kubedir.stat.exists
+
+- name: check hyperkube image has been downloaded
+  command: docker image ls -q {{ kubernetes.hyperkube.image }}:{{ kubernetes.hyperkube.version }}
+  register: hyperkube
+  changed_when: False
+
+- name: download hyperkube image
+  command: docker image pull {{ kubernetes.hyperkube.image }}:{{ kubernetes.hyperkube.version }}
+  when: hyperkube.stdout == ""
+
+- name: check host TLS CA certificate is exists
+  stat:
+    path: /etc/ssl/ca/certs/ca.pem
+  register: ca
+  changed_when: False
+
+- name: copy host TLS CA certificate
+  copy:
+    src: ca.pem
+    dest: /etc/ssl/ca/certs/ca.pem
+  when: not ca.stat.exists
