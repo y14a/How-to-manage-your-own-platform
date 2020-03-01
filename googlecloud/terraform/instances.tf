@@ -4,14 +4,18 @@ resource "google_compute_instance" "ns" {
   zone = "asia-northeast1-a"
   description = "Internal name server"
 
-  disk {
-    image = ""
+  boot_disk {
+    auto_delete = true
+    initialize_params {
+      image = "centos-cloud/centos-7-v20200205"
+      size = 10
+    }
   }
 
   network_interface {
     access_config {
     }
 
-    subnetwork = "${google_compute_subnetwork.main.name}"
+    subnetwork = google_compute_subnetwork.main.name
   }
 }
